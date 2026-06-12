@@ -628,19 +628,19 @@ function renderAll() { renderCats(); recalc(); updateLockUI(); }
    LOCK / PIN
    ============================================================ */
 function updateLockUI() {
-  const btn = document.getElementById('btn-lock');
+  const btn    = document.getElementById('btn-lock');
   const addBtn = document.getElementById('btn-add');
   if (!btn) return;
   if (isUnlocked) {
     btn.innerHTML = '<i class="ti ti-lock-open" aria-hidden="true"></i>';
     btn.title = 'Lock editing';
     btn.classList.add('unlocked');
-    if (addBtn) addBtn.style.display = '';
+    if (addBtn) { addBtn.style.opacity = ''; addBtn.style.cursor = ''; }
   } else {
     btn.innerHTML = '<i class="ti ti-lock" aria-hidden="true"></i>';
     btn.title = 'Unlock to edit';
     btn.classList.remove('unlocked');
-    if (addBtn) addBtn.style.display = 'none';
+    if (addBtn) { addBtn.style.opacity = '0.55'; addBtn.style.cursor = 'default'; }
   }
 }
 
@@ -955,7 +955,10 @@ document.getElementById('tab-active').addEventListener('click', () => setView('a
 document.getElementById('tab-all').addEventListener('click', () => setView('all'));
 document.getElementById('view-all-link').addEventListener('click', () => setView('all'));
 document.getElementById('btn-inactive').addEventListener('click', () => setView('all'));
-document.getElementById('btn-add').addEventListener('click', () => openModal());
+document.getElementById('btn-add').addEventListener('click', () => {
+  if (!isUnlocked) { handleLockBtn(); return; }
+  openModal();
+});
 document.getElementById('btn-lock').addEventListener('click', handleLockBtn);
 
 /* ============================================================
