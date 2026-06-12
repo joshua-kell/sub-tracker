@@ -413,7 +413,71 @@ async function sha256(str) {
 
 let isUnlocked = sessionStorage.getItem('autopay.unlocked') === '1';
 
-/* -- state -- */
+/* -- known service logos -- */
+const KNOWN_LOGOS = {
+  'netflix':          { bg:'#1a1a1a', slug:'netflix',        ic:'e50914' },
+  'spotify':          { bg:'#1a1a1a', slug:'spotify',        ic:'1ed760' },
+  'youtube':          { bg:'#ff0000', slug:'youtube',        ic:'ffffff' },
+  'youtube tv':       { bg:'#ff0000', slug:'youtube',        ic:'ffffff' },
+  'youtube premium':  { bg:'#ff0000', slug:'youtube',        ic:'ffffff' },
+  'hbo':              { bg:'#2723a5', slug:'hbo',            ic:'ffffff' },
+  'hbo max':          { bg:'#2723a5', slug:'hbo',            ic:'ffffff' },
+  'max':              { bg:'#2723a5', slug:'hbo',            ic:'ffffff' },
+  'disney+':          { bg:'#0e2a6a', txt:'D+', small:true  },
+  'disney plus':      { bg:'#0e2a6a', txt:'D+', small:true  },
+  'hulu':             { bg:'#1ce783', slug:'hulu',           ic:'000000' },
+  'apple tv':         { bg:'#1c1c1e', slug:'apple',          ic:'ffffff' },
+  'apple tv+':        { bg:'#1c1c1e', slug:'apple',          ic:'ffffff' },
+  'apple music':      { bg:'#fc3c44', slug:'applemusic',     ic:'ffffff' },
+  'amazon prime':     { bg:'#ff9900', slug:'amazon',         ic:'ffffff' },
+  'prime video':      { bg:'#00a8e0', slug:'primevideo',     ic:'ffffff' },
+  'peacock':          { bg:'#000000', txt:'P' },
+  'paramount+':       { bg:'#0064ff', txt:'P+', small:true  },
+  'github':           { bg:'#24292f', slug:'github',         ic:'ffffff' },
+  'github copilot':   { bg:'#24292f', slug:'github',         ic:'ffffff' },
+  'github pro':       { bg:'#24292f', slug:'github',         ic:'ffffff' },
+  'chatgpt':          { bg:'#10a37f', txt:'C' },
+  'chatgpt plus':     { bg:'#10a37f', txt:'C' },
+  'openai':           { bg:'#10a37f', txt:'C' },
+  'notion':           { bg:'#ffffff', slug:'notion',         ic:'111111', border:true },
+  'notion plus':      { bg:'#ffffff', slug:'notion',         ic:'111111', border:true },
+  'figma':            { bg:'#f24e1e', slug:'figma',          ic:'ffffff' },
+  'linear':           { bg:'#222326', slug:'linear',         ic:'5e6ad2' },
+  'vercel':           { bg:'#111111', slug:'vercel',         ic:'ffffff' },
+  'vercel pro':       { bg:'#111111', slug:'vercel',         ic:'ffffff' },
+  'dropbox':          { bg:'#ffffff', slug:'dropbox',        ic:'0061ff', border:true },
+  'google one':       { bg:'#4285f4', slug:'google',         ic:'ffffff' },
+  'icloud':           { bg:'#3478f6', slug:'icloud',         ic:'ffffff' },
+  'icloud+':          { bg:'#3478f6', slug:'icloud',         ic:'ffffff' },
+  'microsoft 365':    { bg:'#d83b01', slug:'microsoft',      ic:'ffffff' },
+  'office 365':       { bg:'#d83b01', slug:'microsoft',      ic:'ffffff' },
+  'adobe':            { bg:'#ff0000', slug:'adobe',          ic:'ffffff' },
+  'adobe cc':         { bg:'#ff0000', slug:'adobe',          ic:'ffffff' },
+  'creative cloud':   { bg:'#ff0000', slug:'adobe',          ic:'ffffff' },
+  '1password':        { bg:'#1a8cff', slug:'1password',      ic:'ffffff' },
+  'lastpass':         { bg:'#d32d27', slug:'lastpass',       ic:'ffffff' },
+  'todoist':          { bg:'#ffffff', slug:'todoist',        ic:'e44332', border:true },
+  'slack':            { bg:'#4a154b', slug:'slack',          ic:'ffffff' },
+  'zoom':             { bg:'#2d8cff', slug:'zoom',           ic:'ffffff' },
+  'duolingo':         { bg:'#ffffff', slug:'duolingo',       ic:'58cc02', border:true },
+  'duolingo super':   { bg:'#ffffff', slug:'duolingo',       ic:'58cc02', border:true },
+  'nytimes':          { bg:'#ffffff', slug:'newyorktimes',   ic:'111111', border:true, serif:true },
+  'ny times':         { bg:'#ffffff', slug:'newyorktimes',   ic:'111111', border:true, serif:true },
+  'new york times':   { bg:'#ffffff', slug:'newyorktimes',   ic:'111111', border:true, serif:true },
+  'the atlantic':     { bg:'#ffffff', fg:'#d6312b', txt:'A', border:true, serif:true },
+  'wsj':              { bg:'#0274b6', txt:'W', serif:true },
+  'wall street journal':{ bg:'#0274b6', txt:'W', serif:true },
+  'washington post':  { bg:'#000000', txt:'W', serif:true },
+  'tidal':            { bg:'#000000', slug:'tidal',          ic:'ffffff' },
+};
+function logoForName(name) {
+  const key = name.trim().toLowerCase();
+  if (KNOWN_LOGOS[key]) return KNOWN_LOGOS[key];
+  const bg = TILE_COLORS[name.length % TILE_COLORS.length];
+  return { bg, txt: name[0].toUpperCase() };
+}
+
+
 const CATS = [
   { id: 'tech',           label: 'Tech',                 icon: 'ti-device-desktop', theme: 'green'  },
   { id: 'entertainment',  label: 'Entertainment',        icon: 'ti-movie',          theme: 'purple' },
@@ -755,8 +819,7 @@ document.getElementById('add-form').addEventListener('submit', async e => {
     db.patch('/rest/v1/subscriptions?id=eq.' + editingId, payload)
       .catch(() => showErrToast('Couldn\'t save changes'));
   } else {
-    const bg       = TILE_COLORS[name.length % TILE_COLORS.length];
-    const logo     = { bg, txt: name[0].toUpperCase() };
+    const logo     = logoForName(name);
     const tempId   = Date.now();
     const optimistic = Object.assign({}, payload, { id: tempId, active: true, logo });
     subs.push(optimistic);
