@@ -892,7 +892,7 @@ document.getElementById('tab-active').addEventListener('click', () => setView('a
 document.getElementById('tab-all').addEventListener('click', () => setView('all'));
 document.getElementById('view-all-link').addEventListener('click', () => setView('all'));
 document.getElementById('btn-inactive').addEventListener('click', () => setView('all'));
-document.getElementById('btn-add').addEventListener('click', openModal);
+document.getElementById('btn-add').addEventListener('click', () => openModal());
 document.getElementById('btn-lock').addEventListener('click', handleLockBtn);
 
 /* ============================================================
