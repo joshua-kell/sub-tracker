@@ -37,6 +37,25 @@ body{padding:44px 32px 56px;min-height:100vh}
 .btn-add{display:inline-flex;align-items:center;gap:7px;background:var(--green);color:#fff;border:none;border-radius:10px;padding:11px 18px;font-family:var(--font-sans);font-size:13.5px;font-weight:600;cursor:pointer;box-shadow:0 1px 2px rgba(0,90,45,.25);transition:background .15s;white-space:nowrap}
 .btn-add:hover{background:var(--green-dark)}
 
+.head-actions{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.btn-secondary{display:inline-flex;align-items:center;gap:7px;background:#fff;border:1px solid var(--hair);border-radius:10px;padding:11px 14px;font-family:var(--font-sans);font-size:13px;font-weight:600;color:#3c3c42;cursor:pointer;transition:border-color .15s,background .15s;white-space:nowrap}
+.btn-secondary:hover{border-color:#c8c8cc;background:#fafafa}
+.btn-overflow{padding:10px 12px;font-size:16px}
+.overflow-menu-wrap{position:relative}
+.overflow-menu{position:absolute;right:0;top:calc(100% + 6px);background:#fff;border:1px solid var(--hair);border-radius:12px;box-shadow:0 10px 30px rgba(20,20,30,.12);padding:5px;min-width:160px;display:none;z-index:40}
+.overflow-menu.open{display:block}
+.overflow-menu button{display:flex;align-items:center;gap:9px;width:100%;background:none;border:none;font-family:var(--font-sans);font-size:13px;font-weight:500;color:var(--ink);padding:9px 11px;border-radius:8px;cursor:pointer;text-align:left}
+.overflow-menu button:hover{background:#f5f5f7}
+.btn-lock{display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;background:#fff;border:1px solid var(--hair);border-radius:10px;font-size:16px;color:#8e8e95;cursor:pointer;transition:border-color .15s,color .15s,background .15s}
+.btn-lock:hover{border-color:#c8c8cc;color:var(--ink)}
+.btn-lock.unlocked{color:var(--green);border-color:#b4dfca;background:var(--green-tint)}
+.toggle-locked{opacity:.5;pointer-events:none}
+.overflow-menu-wrap{position:relative}
+.overflow-menu{position:absolute;right:0;top:calc(100% + 6px);background:#fff;border:1px solid var(--hair);border-radius:12px;box-shadow:0 10px 30px rgba(20,20,30,.12);padding:5px;min-width:160px;display:none;z-index:40}
+.overflow-menu.open{display:block}
+.overflow-menu button{display:flex;align-items:center;gap:9px;width:100%;background:none;border:none;font-family:var(--font-sans);font-size:13px;font-weight:500;color:var(--ink);padding:9px 11px;border-radius:8px;cursor:pointer;text-align:left}
+.overflow-menu button:hover{background:#f5f5f7}
+
 /* ---------- stat cards ---------- */
 .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:28px}
 .stat-card{position:relative;background:var(--card);border:1px solid var(--hair);border-radius:14px;padding:16px;overflow:hidden}
@@ -143,6 +162,19 @@ table.subs{width:100%;border-collapse:collapse}
 
 .foot-note{text-align:center;font-size:11.5px;color:#b3b3b8;margin-top:22px}
 
+/* ---------- PIN modal ---------- */
+.pin-desc{font-size:13px;color:var(--muted);margin-bottom:18px;line-height:1.5}
+.pin-error{font-size:12px;color:#d6312b;min-height:18px;margin-bottom:4px}
+
+/* ---------- loading / error states ---------- */
+.loading-state{display:flex;align-items:center;justify-content:center;gap:12px;padding:52px 24px;color:var(--muted);font-size:14px}
+.spinner{width:18px;height:18px;border:2.5px solid #e5e5e8;border-top-color:var(--green);border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0}
+@keyframes spin{to{transform:rotate(360deg)}}
+.err-state{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:52px 24px;color:var(--muted);text-align:center}
+.err-state i{font-size:32px;color:#d1d1d6}
+.err-state p{font-size:14px;font-weight:600;color:#3c3c42;margin:0}
+.err-state small{font-size:12px}
+
 /* ---------- toast ---------- */
 .toast{position:fixed;left:50%;bottom:26px;transform:translate(-50%,16px);background:#1c1c21;color:#fff;border-radius:12px;padding:11px 14px 11px 18px;display:flex;align-items:center;gap:14px;font-size:13px;font-weight:500;box-shadow:0 12px 32px rgba(20,20,30,.3);opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;z-index:70}
 .toast.show{opacity:1;transform:translate(-50%,0);pointer-events:auto}
@@ -201,7 +233,18 @@ table.subs{width:100%;border-collapse:collapse}
       <h1>Autopay Subscription Tracker</h1>
       <p class="head-sub">Track and manage all your recurring subscriptions in one place.</p>
     </div>
-    <button class="btn-add" id="btn-add"><i class="ti ti-plus" aria-hidden="true"></i> Add Subscription</button>
+    <div class="head-actions">
+      <button class="btn-lock" id="btn-lock" title="Unlock to edit" aria-label="Lock/unlock editing"><i class="ti ti-lock" aria-hidden="true"></i></button>
+      <div class="overflow-menu-wrap" id="overflow-wrap">
+        <button class="btn-secondary btn-overflow" id="btn-overflow" aria-label="More options"><i class="ti ti-dots" aria-hidden="true"></i></button>
+        <div class="overflow-menu" id="overflow-menu">
+          <button id="btn-import"><i class="ti ti-upload" aria-hidden="true"></i> Import data</button>
+          <button id="btn-export"><i class="ti ti-download" aria-hidden="true"></i> Export data</button>
+        </div>
+      </div>
+      <button class="btn-add" id="btn-add"><i class="ti ti-plus" aria-hidden="true"></i> Add Subscription</button>
+      <input type="file" id="import-input" accept=".json" style="display:none">
+    </div>
   </div>
 
   <div class="stats" data-screen-label="Stat cards">
@@ -324,221 +367,340 @@ table.subs{width:100%;border-collapse:collapse}
   </div>
 </div>
 <script>
-/* AutoPay Subscription Tracker — data + rendering */
+/* ============================================================
+   AutoPay Subscription Tracker
+   Supabase-backed · PIN-protected editing
+   ============================================================ */
 
+const SB_URL = 'https://nqkvazipcwkopfzbfftc.supabase.co';
+const SB_KEY = 'sb_publishable_lqaTg6PmMRJd7rRkO1CMSQ_NnmT_bQ2';
+const HDR = {
+  'apikey': SB_KEY,
+  'Authorization': 'Bearer ' + SB_KEY,
+  'Content-Type': 'application/json',
+  'Prefer': 'return=representation'
+};
+
+/* -- database helpers -- */
+const db = {
+  async get(path) {
+    const r = await fetch(SB_URL + path, { headers: HDR });
+    if (!r.ok) throw new Error(await r.text());
+    return r.json();
+  },
+  async post(path, body, extra) {
+    const h = extra ? Object.assign({}, HDR, extra) : HDR;
+    const r = await fetch(SB_URL + path, { method: 'POST', headers: h, body: JSON.stringify(body) });
+    if (!r.ok) throw new Error(await r.text());
+    return r.json();
+  },
+  async patch(path, body) {
+    const r = await fetch(SB_URL + path, { method: 'PATCH', headers: HDR, body: JSON.stringify(body) });
+    if (!r.ok) throw new Error(await r.text());
+    return r.json();
+  },
+  async del(path) {
+    const r = await fetch(SB_URL + path, { method: 'DELETE', headers: HDR });
+    if (!r.ok) throw new Error(await r.text());
+  }
+};
+
+/* -- PIN helpers -- */
+async function sha256(str) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+  return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+let isUnlocked = sessionStorage.getItem('autopay.unlocked') === '1';
+
+/* -- state -- */
 const CATS = [
-  { id: 'tech', label: 'Tech', icon: 'ti-device-desktop', theme: 'green' },
-  { id: 'entertainment', label: 'Entertainment', icon: 'ti-movie', theme: 'purple' },
-  { id: 'productivity', label: 'Productivity & News', icon: 'ti-layout-grid', theme: 'orange' },
+  { id: 'tech',           label: 'Tech',                 icon: 'ti-device-desktop', theme: 'green'  },
+  { id: 'entertainment',  label: 'Entertainment',        icon: 'ti-movie',          theme: 'purple' },
+  { id: 'productivity',   label: 'Productivity & News',  icon: 'ti-layout-grid',    theme: 'orange' },
 ];
 const THEME_COLORS = { green: '#00a857', purple: '#7c5cfc', orange: '#f59e0b' };
+const TILE_COLORS  = ['#5e6ad2','#0e7a5f','#b45309','#7c5cfc','#0061ff','#d6312b','#16161a'];
 
-let subs = [
-  { id: 1, name: 'ChatGPT Plus', price: 20.00, cycle: 'monthly', renewal: '2026-06-30', active: true, cat: 'tech', logo: { bg: '#10a37f', txt: 'C' } },
-  { id: 2, name: 'Vercel Pro', price: 20.00, cycle: 'monthly', renewal: '2026-07-05', active: true, cat: 'tech', logo: { bg: '#111111', txt: 'V', slug: 'vercel', ic: 'ffffff' } },
-  { id: 3, name: 'GitHub Copilot', price: 10.00, cycle: 'monthly', renewal: '2026-07-01', active: true, cat: 'tech', logo: { bg: '#24292f', txt: 'G', slug: 'github', ic: 'ffffff' } },
-  { id: 4, name: 'Linear', price: 8.00, cycle: 'monthly', renewal: '2026-06-15', active: true, cat: 'tech', logo: { bg: '#222326', txt: 'L', slug: 'linear', ic: '5e6ad2' } },
-  { id: 5, name: 'Netflix', price: 15.49, cycle: 'monthly', renewal: '2026-06-12', active: true, cat: 'entertainment', logo: { bg: '#1a1a1a', txt: 'N', fg: '#e50914', slug: 'netflix', ic: 'e50914' } },
-  { id: 6, name: 'YouTube TV', price: 72.99, cycle: 'monthly', renewal: '2026-06-28', active: true, cat: 'entertainment', logo: { bg: '#ff0000', txt: 'Y', slug: 'youtube', ic: 'ffffff' } },
-  { id: 7, name: 'Disney+', price: 7.99, cycle: 'monthly', renewal: '2026-06-18', active: true, cat: 'entertainment', logo: { bg: '#0e2a6a', txt: 'D+', small: true } },
-  { id: 8, name: 'Notion Plus', price: 10.00, cycle: 'monthly', renewal: '2026-07-03', active: true, cat: 'productivity', logo: { bg: '#ffffff', txt: 'N', fg: '#111', border: true, slug: 'notion', ic: '111111' } },
-  { id: 9, name: 'The Atlantic', price: 59.99, cycle: 'annual', renewal: '2027-02-10', active: true, cat: 'productivity', logo: { bg: '#ffffff', txt: 'A', fg: '#d6312b', border: true, serif: true } },
-  { id: 10, name: 'NYTimes', price: 25.00, cycle: 'monthly', renewal: '2026-06-22', active: true, cat: 'productivity', logo: { bg: '#ffffff', txt: 'T', fg: '#111', border: true, serif: true, slug: 'newyorktimes', ic: '111111' } },
-  { id: 11, name: 'Todoist', price: 4.00, cycle: 'monthly', renewal: '2026-06-25', active: true, cat: 'productivity', logo: { bg: '#ffffff', txt: 'T', fg: '#e44332', border: true, slug: 'todoist', ic: 'e44332' } },
-  { id: 12, name: '1Password', price: 2.99, cycle: 'monthly', renewal: '2026-07-08', active: true, cat: 'productivity', logo: { bg: '#1a8cff', txt: '1', slug: '1password', ic: 'ffffff' } },
-  { id: 13, name: 'HBO Max', price: 15.99, cycle: 'monthly', renewal: '2026-07-10', active: false, cat: 'entertainment', logo: { bg: '#2723a5', txt: 'H', slug: 'hbo', ic: 'ffffff' } },
-  { id: 14, name: 'Spotify', price: 10.99, cycle: 'monthly', renewal: '2026-06-20', active: false, cat: 'entertainment', logo: { bg: '#1a1a1a', txt: 'S', fg: '#1db954', slug: 'spotify', ic: '1ed760' } },
-  { id: 15, name: 'Dropbox', price: 11.99, cycle: 'monthly', renewal: '2026-07-12', active: false, cat: 'tech', logo: { bg: '#ffffff', txt: 'D', fg: '#0061ff', border: true, slug: 'dropbox', ic: '0061ff' } },
-  { id: 16, name: 'Duolingo Super', price: 6.99, cycle: 'monthly', renewal: '2026-07-02', active: false, cat: 'productivity', logo: { bg: '#ffffff', txt: 'D', fg: '#58cc02', border: true, slug: 'duolingo', ic: '58cc02' } },
-];
-let nextId = 100;
-let view = 'active'; // 'active' | 'all'
+let subs = [];
+let view = 'active';
 
-/* ---------- persistence ---------- */
-const STORE_KEY = 'autopay.subs.v1';
-function save() {
-  try { localStorage.setItem(STORE_KEY, JSON.stringify(subs)); } catch (e) { /* storage unavailable */ }
-}
-(function load() {
-  try {
-    const raw = localStorage.getItem(STORE_KEY);
-    if (!raw) return;
-    const data = JSON.parse(raw);
-    if (Array.isArray(data) && data.length) {
-      subs = data;
-      nextId = Math.max(...subs.map(s => s.id), 99) + 1;
-    }
-  } catch (e) { /* corrupted data — keep defaults */ }
-})();
-
-/* ---------- helpers ---------- */
+/* -- formatters -- */
 const monthly = s => s.cycle === 'annual' ? s.price / 12 : s.price;
-const fmt = n => n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const fmt     = n => n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 const fmtDate = d => new Date(d + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 
-/* ---------- stat cards + summary ---------- */
+/* ============================================================
+   STATS + DONUT
+   ============================================================ */
 function recalc() {
   const active = subs.filter(s => s.active);
   const mTotal = active.reduce((a, s) => a + monthly(s), 0);
 
   document.getElementById('stat-monthly').textContent = '$' + fmt(mTotal);
-  document.getElementById('stat-monthly-foot').textContent = `across ${active.length} active subscriptions`;
+  document.getElementById('stat-monthly-foot').textContent = 'across ' + active.length + ' active subscriptions';
   document.getElementById('stat-annual').textContent = '$' + fmt(mTotal * 12);
   document.getElementById('stat-count').textContent = active.length;
-  const catCount = new Set(active.map(s => s.cat)).size;
-  document.getElementById('stat-count-foot').textContent = `across ${catCount} categories`;
+  document.getElementById('stat-count-foot').textContent = 'across ' + new Set(active.map(s => s.cat)).size + ' categories';
 
   const upcoming = active.slice().sort((a, b) => a.renewal.localeCompare(b.renewal))[0];
   if (upcoming) {
-    document.getElementById('stat-renewal').textContent = new Date(upcoming.renewal + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-    document.getElementById('stat-renewal-foot').innerHTML = `${upcoming.name} &nbsp;·&nbsp; $${fmt(upcoming.price)}`;
+    document.getElementById('stat-renewal').textContent = fmtDate(upcoming.renewal);
+    document.getElementById('stat-renewal-foot').innerHTML = upcoming.name + ' &nbsp;·&nbsp; $' + fmt(upcoming.price);
   }
 
-  document.getElementById('tab-active-label').textContent = `Active (${active.length})`;
-  document.getElementById('tab-all-label').textContent = `All Subscriptions (${subs.length})`;
-  const inactiveCount = subs.length - active.length;
-  document.getElementById('inactive-count').textContent = `View all inactive (${inactiveCount})`;
+  document.getElementById('tab-active-label').textContent = 'Active (' + active.length + ')';
+  document.getElementById('tab-all-label').textContent = 'All Subscriptions (' + subs.length + ')';
+  document.getElementById('inactive-count').textContent = 'View all inactive (' + (subs.length - active.length) + ')';
 
-  /* summary strip */
-  document.getElementById('sum-monthly').innerHTML = `$${fmt(mTotal)} <span class="per">/mo</span>`;
-  document.getElementById('sum-monthly-foot').textContent = `on ${active.length} active subscriptions`;
-  document.getElementById('sum-annual').innerHTML = `$${fmt(mTotal * 12)} <span class="per">/yr</span>`;
-  document.getElementById('sum-avg').innerHTML = active.length ? `$${fmt(mTotal / active.length)} <span class="per">/mo</span>` : '—';
+  document.getElementById('sum-monthly').innerHTML = '$' + fmt(mTotal) + ' <span class="per">/mo</span>';
+  document.getElementById('sum-monthly-foot').textContent = 'on ' + active.length + ' active subscriptions';
+  document.getElementById('sum-annual').innerHTML = '$' + fmt(mTotal * 12) + ' <span class="per">/yr</span>';
+  document.getElementById('sum-avg').innerHTML = active.length ? '$' + fmt(mTotal / active.length) + ' <span class="per">/mo</span>' : '—';
 
   drawDonut(active, mTotal);
 }
 
 function drawDonut(active, mTotal) {
   const byCat = CATS.map(c => ({
-    ...c,
-    total: active.filter(s => s.cat === c.id).reduce((a, s) => a + monthly(s), 0),
+    label: c.label, theme: c.theme,
+    total: active.filter(s => s.cat === c.id).reduce((a, s) => a + monthly(s), 0)
   })).filter(c => c.total > 0).sort((a, b) => b.total - a.total);
 
   const svg = document.getElementById('donut');
-  const R = 26, CX = 32, CY = 32, SW = 12;
-  const circ = 2 * Math.PI * R;
+  const R = 26, CX = 32, CY = 32, SW = 12, circ = 2 * Math.PI * R;
   let offset = 0;
   svg.innerHTML = byCat.map(c => {
     const frac = mTotal ? c.total / mTotal : 0;
-    const seg = `<circle cx="${CX}" cy="${CY}" r="${R}" fill="none" stroke="${THEME_COLORS[c.theme]}" stroke-width="${SW}"
-      stroke-dasharray="${(frac * circ).toFixed(2)} ${circ.toFixed(2)}" stroke-dashoffset="${(-offset * circ).toFixed(2)}"
-      transform="rotate(-90 ${CX} ${CY})"></circle>`;
+    const seg = '<circle cx="' + CX + '" cy="' + CY + '" r="' + R + '" fill="none" stroke="' + THEME_COLORS[c.theme] + '" stroke-width="' + SW + '" stroke-dasharray="' + (frac * circ).toFixed(2) + ' ' + circ.toFixed(2) + '" stroke-dashoffset="' + (-offset * circ).toFixed(2) + '" transform="rotate(-90 ' + CX + ' ' + CY + ')"></circle>';
     offset += frac;
     return seg;
   }).join('');
 
-  document.getElementById('legend').innerHTML = byCat.map(c => `
-    <div class="legend-row">
-      <span class="legend-dot" style="background:${THEME_COLORS[c.theme]}"></span>
-      <span class="legend-name">${c.label}</span>
-      <span class="legend-val">$${fmt(c.total)}/mo (${mTotal ? Math.round(c.total / mTotal * 100) : 0}%)</span>
-    </div>`).join('');
+  document.getElementById('legend').innerHTML = byCat.map(c =>
+    '<div class="legend-row"><span class="legend-dot" style="background:' + THEME_COLORS[c.theme] + '"></span><span class="legend-name">' + c.label + '</span><span class="legend-val">$' + fmt(c.total) + '/mo (' + (mTotal ? Math.round(c.total / mTotal * 100) : 0) + '%)</span></div>'
+  ).join('');
 }
 
-/* ---------- rows ---------- */
+/* ============================================================
+   RENDERING
+   ============================================================ */
 function logoHtml(l) {
-  const fg = l.fg || '#fff';
+  if (!l) return '<span class="logo" style="background:#6b6b72;color:#fff">?</span>';
+  const fg     = l.fg     || '#fff';
   const border = l.border ? 'border:1px solid #e5e5e8;' : '';
-  const serif = l.serif ? 'font-family:Georgia,serif;' : '';
-  const small = l.small ? 'font-size:10.5px;letter-spacing:-0.5px;' : '';
+  const serif  = l.serif  ? 'font-family:Georgia,serif;' : '';
+  const small  = l.small  ? 'font-size:10.5px;letter-spacing:-0.5px;' : '';
   if (l.slug) {
-    return `<span class="logo" style="background:${l.bg};color:${fg};${border}${serif}${small}"><img src="https://cdn.simpleicons.org/${l.slug}/${l.ic}" width="16" height="16" alt="" onerror="this.replaceWith('${l.txt}')"></span>`;
+    return '<span class="logo" style="background:' + l.bg + ';color:' + fg + ';' + border + serif + small + '"><img src="https://cdn.simpleicons.org/' + l.slug + '/' + l.ic + '" width="16" height="16" alt="" onerror="this.style.display=\'none\';this.parentElement.textContent=\'' + l.txt + '\'"></span>';
   }
-  return `<span class="logo" style="background:${l.bg};color:${fg};${border}${serif}${small}">${l.txt}</span>`;
+  return '<span class="logo" style="background:' + l.bg + ';color:' + fg + ';' + border + serif + small + '">' + l.txt + '</span>';
 }
 
 function rowHtml(s) {
-  const isAnnual = s.cycle === 'annual';
-  const priceMain = isAnnual ? `$${fmt(s.price)}<span class="per">/yr</span>` : `$${fmt(s.price)}<span class="per">/mo</span>`;
-  const priceSub = isAnnual ? `<div class="price-sub">$${fmt(s.price / 12)}/mo</div>` : '';
-  return `
-  <tr class="${s.active ? '' : 'off'}" data-id="${s.id}">
-    <td><span class="svc">${logoHtml(s.logo)}<span class="svc-name">${s.name}</span></span></td>
-    <td><span class="badge ${s.cycle}">${s.cycle === 'annual' ? 'Annual' : 'Monthly'}</span></td>
-    <td><span class="price-cell">${priceMain}</span>${priceSub}</td>
-    <td><span class="date-cell">${fmtDate(s.renewal)}</span></td>
-    <td>
-      <label class="toggle" aria-label="Toggle ${s.name}">
-        <input type="checkbox" ${s.active ? 'checked' : ''} data-id="${s.id}">
-        <span class="slider"></span>
-      </label>
-    </td>
-    <td style="text-align:right"><button class="dots" data-id="${s.id}" aria-label="More options for ${s.name}">···</button></td>
-  </tr>`;
+  const isAnnual  = s.cycle === 'annual';
+  const priceMain = isAnnual ? '$' + fmt(s.price) + '<span class="per">/yr</span>' : '$' + fmt(s.price) + '<span class="per">/mo</span>';
+  const priceSub  = isAnnual ? '<div class="price-sub">$' + fmt(s.price / 12) + '/mo</div>' : '';
+  const toggleEl  = isUnlocked
+    ? '<label class="toggle" aria-label="Toggle ' + s.name + '"><input type="checkbox" ' + (s.active ? 'checked' : '') + ' data-id="' + s.id + '"><span class="slider"></span></label>'
+    : '<label class="toggle toggle-locked"><input type="checkbox" ' + (s.active ? 'checked' : '') + ' disabled><span class="slider"></span></label>';
+  const dotsEl = isUnlocked ? '<button class="dots" data-id="' + s.id + '" aria-label="More options">···</button>' : '';
+  return '<tr class="' + (s.active ? '' : 'off') + '" data-id="' + s.id + '"><td><span class="svc">' + logoHtml(s.logo) + '<span class="svc-name">' + s.name + '</span></span></td><td><span class="badge ' + s.cycle + '">' + (isAnnual ? 'Annual' : 'Monthly') + '</span></td><td><span class="price-cell">' + priceMain + '</span>' + priceSub + '</td><td><span class="date-cell">' + fmtDate(s.renewal) + '</span></td><td>' + toggleEl + '</td><td style="text-align:right">' + dotsEl + '</td></tr>';
 }
 
-/* ---------- categories ---------- */
 function renderCats() {
   const host = document.getElementById('cats');
   host.innerHTML = CATS.map((c, i) => {
-    const all = subs.filter(s => s.cat === c.id);
-    const items = view === 'active' ? all.filter(s => s.active) : all;
+    const all       = subs.filter(s => s.cat === c.id);
+    const items     = view === 'active' ? all.filter(s => s.active) : all;
     if (!items.length) return '';
-    const activeItems = all.filter(s => s.active);
-    const catTotal = activeItems.reduce((a, s) => a + monthly(s), 0);
-    return `
-    <section class="cat" data-cat="${c.id}" data-screen-label="${c.label}">
-      <div class="cat-head ${c.theme}" role="button" tabindex="0" aria-label="Collapse ${c.label}">
-        <span class="cat-ico"><i class="ti ${c.icon}" aria-hidden="true"></i></span>
-        <span class="cat-title">${i + 1}. ${c.label}</span>
-        <span class="cat-count">${activeItems.length} active</span>
-        <span class="cat-spacer"></span>
-        <span class="cat-total">$${fmt(catTotal)}<span>/mo</span></span>
-        <i class="ti ti-chevron-up cat-chev" aria-hidden="true"></i>
-      </div>
-      <div class="cat-body">
-        <table class="subs">
-          <thead><tr><th>Subscription</th><th>Billing</th><th>Price</th><th>Renewal Date</th><th>Status</th><th></th></tr></thead>
-          <tbody>${items.map(rowHtml).join('')}</tbody>
-        </table>
-      </div>
-    </section>`;
+    const actItems  = all.filter(s => s.active);
+    const catTotal  = actItems.reduce((a, s) => a + monthly(s), 0);
+    return '<section class="cat" data-cat="' + c.id + '" data-screen-label="' + c.label + '">' +
+      '<div class="cat-head ' + c.theme + '" role="button" tabindex="0">' +
+      '<span class="cat-ico"><i class="ti ' + c.icon + '" aria-hidden="true"></i></span>' +
+      '<span class="cat-title">' + (i+1) + '. ' + c.label + '</span>' +
+      '<span class="cat-count">' + actItems.length + ' active</span>' +
+      '<span class="cat-spacer"></span>' +
+      '<span class="cat-total">$' + fmt(catTotal) + '<span>/mo</span></span>' +
+      '<i class="ti ti-chevron-up cat-chev" aria-hidden="true"></i></div>' +
+      '<div class="cat-body"><table class="subs">' +
+      '<thead><tr><th>Subscription</th><th>Billing</th><th>Price</th><th>Renewal Date</th><th>Status</th><th></th></tr></thead>' +
+      '<tbody>' + items.map(rowHtml).join('') + '</tbody></table></div></section>';
   }).join('');
 
   host.querySelectorAll('.cat-head').forEach(h => {
     h.addEventListener('click', () => h.closest('.cat').classList.toggle('closed'));
   });
-  host.querySelectorAll('.toggle input').forEach(t => {
-    t.addEventListener('change', function (e) {
-      e.stopPropagation();
-      const sub = subs.find(x => x.id === parseInt(this.dataset.id));
-      if (!sub) return;
-      sub.active = this.checked;
-      renderAll();
+
+  if (isUnlocked) {
+    host.querySelectorAll('.toggle input:not([disabled])').forEach(t => {
+      t.addEventListener('change', async function(e) {
+        e.stopPropagation();
+        const id  = parseInt(this.dataset.id);
+        const sub = subs.find(s => s.id === id);
+        if (!sub) return;
+        const prev = sub.active;
+        sub.active = this.checked;
+        recalc();
+        try {
+          await db.patch('/rest/v1/subscriptions?id=eq.' + id, { active: this.checked });
+        } catch(err) {
+          sub.active = prev;
+          renderAll();
+          showErrToast('Couldn\'t save — check connection');
+        }
+      });
     });
-  });
-  host.querySelectorAll('.dots').forEach(b => {
-    b.addEventListener('click', e => {
-      e.stopPropagation();
-      openRowMenu(b, parseInt(b.dataset.id));
+    host.querySelectorAll('.dots').forEach(b => {
+      b.addEventListener('click', e => { e.stopPropagation(); openRowMenu(b, parseInt(b.dataset.id)); });
     });
-  });
+  }
 }
 
-/* ---------- row menu (edit / delete) ---------- */
+function renderAll() { renderCats(); recalc(); updateLockUI(); }
+
+/* ============================================================
+   LOCK / PIN
+   ============================================================ */
+function updateLockUI() {
+  const btn = document.getElementById('btn-lock');
+  const addBtn = document.getElementById('btn-add');
+  if (!btn) return;
+  if (isUnlocked) {
+    btn.innerHTML = '<i class="ti ti-lock-open" aria-hidden="true"></i>';
+    btn.title = 'Lock editing';
+    btn.classList.add('unlocked');
+    if (addBtn) addBtn.style.display = '';
+  } else {
+    btn.innerHTML = '<i class="ti ti-lock" aria-hidden="true"></i>';
+    btn.title = 'Unlock to edit';
+    btn.classList.remove('unlocked');
+    if (addBtn) addBtn.style.display = 'none';
+  }
+}
+
+async function handleLockBtn() {
+  if (isUnlocked) {
+    isUnlocked = false;
+    sessionStorage.removeItem('autopay.unlocked');
+    renderAll();
+    return;
+  }
+  try {
+    const rows = await db.get('/rest/v1/config?key=eq.pin_hash&select=value');
+    showPinModal(rows.length ? 'unlock' : 'setup', rows.length ? rows[0].value : null);
+  } catch(e) {
+    showErrToast('Can\'t reach database — check connection');
+  }
+}
+
+function showPinModal(mode, storedHash) {
+  closePinModal();
+  const isSetup = mode === 'setup';
+  const overlay = document.createElement('div');
+  overlay.id = 'pin-overlay';
+  overlay.className = 'modal-overlay open';
+  overlay.innerHTML =
+    '<div class="modal" role="dialog" aria-modal="true">' +
+    '<div class="modal-head"><h2>' + (isSetup ? 'Set your PIN' : 'Unlock editing') + '</h2>' +
+    '<button class="modal-x" id="pin-close" aria-label="Close"><i class="ti ti-x" aria-hidden="true"></i></button></div>' +
+    '<p class="pin-desc">' + (isSetup
+      ? 'Choose a PIN to protect your data. Anyone can view your subscriptions — only you can edit them.'
+      : 'Your subscriptions are public. Enter your PIN to unlock editing.') + '</p>' +
+    '<div class="field"><label for="pin-input">PIN</label>' +
+    '<input type="password" id="pin-input" placeholder="Enter PIN" autocomplete="off" inputmode="numeric"></div>' +
+    (isSetup ? '<div class="field"><label for="pin-confirm">Confirm PIN</label><input type="password" id="pin-confirm" placeholder="Confirm PIN" autocomplete="off" inputmode="numeric"></div>' : '') +
+    '<p class="pin-error" id="pin-error"></p>' +
+    '<div class="modal-actions"><button type="button" class="btn-ghost" id="pin-cancel">Cancel</button>' +
+    '<button type="button" class="btn-add" id="pin-submit">' + (isSetup ? 'Set PIN' : 'Unlock') + '</button></div>' +
+    '</div>';
+  document.body.appendChild(overlay);
+  document.getElementById('pin-input').focus();
+
+  document.getElementById('pin-close').onclick  = closePinModal;
+  document.getElementById('pin-cancel').onclick = closePinModal;
+  overlay.addEventListener('click', e => { if (e.target === overlay) closePinModal(); });
+
+  overlay.addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('pin-submit').click(); });
+
+  document.getElementById('pin-submit').onclick = async () => {
+    const pin = document.getElementById('pin-input').value;
+    if (!pin) { document.getElementById('pin-error').textContent = 'Please enter a PIN'; return; }
+
+    if (isSetup) {
+      const confirm = document.getElementById('pin-confirm').value;
+      if (pin !== confirm) { document.getElementById('pin-error').textContent = 'PINs don\'t match'; return; }
+      try {
+        const hash = await sha256(pin);
+        await db.post('/rest/v1/config', { key: 'pin_hash', value: hash }, { 'Prefer': 'resolution=merge-duplicates,return=representation' });
+        isUnlocked = true;
+        sessionStorage.setItem('autopay.unlocked', '1');
+        closePinModal();
+        renderAll();
+        showSuccessToast('PIN set — editing unlocked');
+      } catch(e) {
+        document.getElementById('pin-error').textContent = 'Could not save PIN. Try again.';
+      }
+    } else {
+      const hash = await sha256(pin);
+      if (hash === storedHash) {
+        isUnlocked = true;
+        sessionStorage.setItem('autopay.unlocked', '1');
+        closePinModal();
+        renderAll();
+        showSuccessToast('Editing unlocked');
+      } else {
+        document.getElementById('pin-error').textContent = 'Incorrect PIN';
+        document.getElementById('pin-input').value = '';
+        document.getElementById('pin-input').focus();
+      }
+    }
+  };
+}
+
+function closePinModal() {
+  const el = document.getElementById('pin-overlay');
+  if (el) el.remove();
+}
+
+/* ============================================================
+   ROW MENU (edit / delete)
+   ============================================================ */
 let menuEl = null;
 function openRowMenu(anchor, id) {
   closeRowMenu();
   menuEl = document.createElement('div');
   menuEl.className = 'row-menu open';
-  menuEl.innerHTML = `
-    <button data-act="edit"><i class="ti ti-pencil" aria-hidden="true"></i> Edit</button>
-    <button data-act="delete" class="danger"><i class="ti ti-trash" aria-hidden="true"></i> Delete</button>`;
+  menuEl.innerHTML =
+    '<button data-act="edit"><i class="ti ti-pencil" aria-hidden="true"></i> Edit</button>' +
+    '<button data-act="delete" class="danger"><i class="ti ti-trash" aria-hidden="true"></i> Delete</button>';
   document.body.appendChild(menuEl);
-  const r = anchor.getBoundingClientRect();
+  const r  = anchor.getBoundingClientRect();
   const mw = 150;
   menuEl.style.left = Math.min(r.right - mw, window.innerWidth - mw - 8) + 'px';
-  menuEl.style.top = (r.bottom + 6) + 'px';
+  menuEl.style.top  = (r.bottom + 6) + 'px';
+
   menuEl.addEventListener('click', e => {
     const act = e.target.closest('button') ? e.target.closest('button').dataset.act : null;
-    if (act === 'edit') { const sub = subs.find(s => s.id === id); closeRowMenu(); if (sub) openModal(sub); }
+    if (act === 'edit') {
+      const sub = subs.find(s => s.id === id);
+      closeRowMenu();
+      if (sub) openModal(sub);
+    }
     if (act === 'delete') {
       const idx = subs.findIndex(s => s.id === id);
       if (idx > -1) {
         const [removed] = subs.splice(idx, 1);
+        renderAll();
         showUndoToast(removed, idx);
+        db.del('/rest/v1/subscriptions?id=eq.' + id).catch(() => {
+          subs.splice(idx, 0, removed);
+          renderAll();
+          showErrToast('Couldn\'t delete — restored');
+        });
       }
-      closeRowMenu(); renderAll();
+      closeRowMenu();
     }
   });
 }
@@ -546,68 +708,76 @@ function closeRowMenu() { if (menuEl) { menuEl.remove(); menuEl = null; } }
 document.addEventListener('click', e => { if (menuEl && !menuEl.contains(e.target)) closeRowMenu(); });
 window.addEventListener('scroll', closeRowMenu, true);
 
-/* ---------- undo toast ---------- */
-let toastTimer = null;
-function showUndoToast(sub, idx) {
-  let t = document.getElementById('toast');
-  if (!t) {
-    t = document.createElement('div');
-    t.id = 'toast';
-    t.className = 'toast';
-    document.body.appendChild(t);
-  }
-  t.innerHTML = `<span>Deleted “${sub.name}”</span><button class="undo">Undo</button>`;
-  t.querySelector('.undo').addEventListener('click', () => {
-    subs.splice(Math.min(idx, subs.length), 0, sub);
-    hideToast();
-    renderAll();
-  });
-  t.classList.add('show');
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(hideToast, 6000);
-}
-function hideToast() {
-  const t = document.getElementById('toast');
-  if (t) t.classList.remove('show');
-  clearTimeout(toastTimer);
-}
-
-/* ---------- tabs ---------- */
-function setView(v) {
-  view = v;
-  document.getElementById('tab-active').classList.toggle('on', v === 'active');
-  document.getElementById('tab-all').classList.toggle('on', v === 'all');
-  document.getElementById('tabs-note').style.display = v === 'active' ? '' : 'none';
-  renderAll();
-}
-
-/* ---------- add subscription modal ---------- */
-const TILE_COLORS = ['#5e6ad2', '#0e7a5f', '#b45309', '#7c5cfc', '#0061ff', '#d6312b', '#16161a'];
-
-function segVal(id) { return document.querySelector(`#${id} .seg-btn.on`).dataset.val; }
-
+/* ============================================================
+   ADD / EDIT MODAL
+   ============================================================ */
 let editingId = null;
 function segSet(id, val) {
-  document.querySelectorAll(`#${id} .seg-btn`).forEach(b => b.classList.toggle('on', b.dataset.val === val));
+  document.querySelectorAll('#' + id + ' .seg-btn').forEach(b => b.classList.toggle('on', b.dataset.val === val));
+}
+function segVal(id) {
+  const el = document.querySelector('#' + id + ' .seg-btn.on');
+  return el ? el.dataset.val : null;
 }
 
 function openModal(sub) {
   const f = document.getElementById('add-form');
   f.reset();
   editingId = sub ? sub.id : null;
-  document.getElementById('modal-title').textContent = sub ? 'Edit Subscription' : 'Add Subscription';
-  document.getElementById('modal-submit').innerHTML = sub
+  document.getElementById('modal-title').textContent  = sub ? 'Edit Subscription' : 'Add Subscription';
+  document.getElementById('modal-submit').innerHTML   = sub
     ? '<i class="ti ti-check" aria-hidden="true"></i> Save Changes'
     : '<i class="ti ti-plus" aria-hidden="true"></i> Add Subscription';
-  segSet('f-cat', sub ? sub.cat : 'tech');
+  segSet('f-cat',   sub ? sub.cat   : 'tech');
   segSet('f-cycle', sub ? sub.cycle : 'monthly');
-  document.getElementById('f-name').value = sub ? sub.name : '';
-  document.getElementById('f-price').value = sub ? sub.price : '';
+  document.getElementById('f-name').value    = sub ? sub.name    : '';
+  document.getElementById('f-price').value   = sub ? sub.price   : '';
   document.getElementById('f-renewal').value = sub ? sub.renewal : new Date(Date.now() + 30 * 86400000).toISOString().split('T')[0];
   document.getElementById('modal').classList.add('open');
   setTimeout(() => document.getElementById('f-name').focus(), 50);
 }
 function closeModal() { document.getElementById('modal').classList.remove('open'); }
+
+document.getElementById('add-form').addEventListener('submit', async e => {
+  e.preventDefault();
+  const name    = document.getElementById('f-name').value.trim();
+  const price   = parseFloat(document.getElementById('f-price').value);
+  const renewal = document.getElementById('f-renewal').value;
+  if (!name || isNaN(price) || !renewal) return;
+
+  const payload = { name, price, renewal, cycle: segVal('f-cycle'), cat: segVal('f-cat') };
+  closeModal();
+
+  if (editingId !== null) {
+    const sub = subs.find(s => s.id === editingId);
+    if (sub) Object.assign(sub, payload);
+    renderAll();
+    db.patch('/rest/v1/subscriptions?id=eq.' + editingId, payload)
+      .catch(() => showErrToast('Couldn\'t save changes'));
+  } else {
+    const bg       = TILE_COLORS[name.length % TILE_COLORS.length];
+    const logo     = { bg, txt: name[0].toUpperCase() };
+    const tempId   = Date.now();
+    const optimistic = Object.assign({}, payload, { id: tempId, active: true, logo });
+    subs.push(optimistic);
+    renderAll();
+    try {
+      const result = await db.post('/rest/v1/subscriptions', Object.assign({}, payload, { active: true, logo }));
+      const created = Array.isArray(result) ? result[0] : result;
+      optimistic.id = created.id;
+    } catch(err) {
+      subs = subs.filter(s => s.id !== tempId);
+      renderAll();
+      showErrToast('Couldn\'t add subscription');
+    }
+  }
+  editingId = null;
+});
+
+document.getElementById('modal-close').addEventListener('click', closeModal);
+document.getElementById('modal-cancel').addEventListener('click', closeModal);
+document.getElementById('modal').addEventListener('click', e => { if (e.target === e.currentTarget) closeModal(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeModal(); closePinModal(); } });
 
 document.querySelectorAll('.seg').forEach(seg => {
   seg.addEventListener('click', e => {
@@ -618,38 +788,134 @@ document.querySelectorAll('.seg').forEach(seg => {
   });
 });
 
-document.getElementById('add-form').addEventListener('submit', e => {
-  e.preventDefault();
-  const name = document.getElementById('f-name').value.trim();
-  const price = parseFloat(document.getElementById('f-price').value);
-  const renewal = document.getElementById('f-renewal').value;
-  if (!name || isNaN(price) || !renewal) return;
-  if (editingId !== null) {
-    const sub = subs.find(s => s.id === editingId);
-    if (sub) Object.assign(sub, { name, price, renewal, cycle: segVal('f-cycle'), cat: segVal('f-cat') });
-  } else {
-    const bg = TILE_COLORS[name.length % TILE_COLORS.length];
-    subs.push({ id: nextId++, name, price, cycle: segVal('f-cycle'), renewal, active: true, cat: segVal('f-cat'), logo: { bg, txt: name[0].toUpperCase() } });
+/* ============================================================
+   TOASTS
+   ============================================================ */
+let toastTimer = null;
+function getToast() {
+  let t = document.getElementById('toast');
+  if (!t) { t = document.createElement('div'); t.id = 'toast'; t.className = 'toast'; document.body.appendChild(t); }
+  return t;
+}
+function showToast(html, ms) {
+  const t = getToast();
+  t.innerHTML = html;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(hideToast, ms || 4000);
+}
+function hideToast() { const t = document.getElementById('toast'); if (t) t.classList.remove('show'); clearTimeout(toastTimer); }
+
+function showUndoToast(sub, idx) {
+  const t = getToast();
+  t.innerHTML = '<span>Deleted "' + sub.name + '"</span><button class="undo">Undo</button>';
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(hideToast, 6000);
+  t.querySelector('.undo').addEventListener('click', async () => {
+    hideToast();
+    try {
+      const result = await db.post('/rest/v1/subscriptions', {
+        name: sub.name, price: sub.price, cycle: sub.cycle,
+        renewal: sub.renewal, active: sub.active, cat: sub.cat, logo: sub.logo
+      });
+      const created = Array.isArray(result) ? result[0] : result;
+      sub.id = created.id;
+      subs.splice(Math.min(idx, subs.length), 0, sub);
+      renderAll();
+    } catch(e) { showErrToast('Couldn\'t restore'); }
+  });
+}
+function showSuccessToast(msg) { showToast('<span>' + msg + '</span>', 3000); }
+function showErrToast(msg)     { showToast('<span style="color:#f87171">' + msg + '</span>', 4000); }
+
+/* ============================================================
+   EXPORT / IMPORT
+   ============================================================ */
+function exportData() {
+  const blob = new Blob([JSON.stringify(subs, null, 2)], { type: 'application/json' });
+  const a    = document.createElement('a');
+  a.href     = URL.createObjectURL(blob);
+  a.download = 'autopay-' + new Date().toISOString().split('T')[0] + '.json';
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+async function importData(file) {
+  const text = await file.text();
+  try {
+    const data = JSON.parse(text);
+    if (!Array.isArray(data) || !data.every(s => s.name && typeof s.price === 'number'))
+      throw new Error('Invalid format');
+    await db.del('/rest/v1/subscriptions?id=gt.0');
+    for (const s of data) {
+      await db.post('/rest/v1/subscriptions', {
+        name: s.name, price: s.price,
+        cycle: s.cycle || 'monthly', renewal: s.renewal,
+        active: s.active !== false, cat: s.cat || 'tech',
+        logo: s.logo || { bg: '#6b6b72', txt: s.name[0].toUpperCase() }
+      });
+    }
+    await loadAndRender();
+    showSuccessToast('Imported ' + data.length + ' subscription' + (data.length !== 1 ? 's' : ''));
+  } catch(err) {
+    showErrToast('Import failed: ' + err.message);
   }
-  editingId = null;
-  closeModal();
-  renderAll();
+}
+
+function closeOverflow() { document.getElementById('overflow-menu').classList.remove('open'); }
+document.getElementById('btn-export').addEventListener('click', () => { exportData(); closeOverflow(); });
+document.getElementById('btn-import').addEventListener('click', () => { document.getElementById('import-input').click(); closeOverflow(); });
+document.getElementById('import-input').addEventListener('change', e => {
+  if (e.target.files[0]) { importData(e.target.files[0]); e.target.value = ''; }
+});
+document.getElementById('btn-overflow').addEventListener('click', e => {
+  e.stopPropagation();
+  document.getElementById('overflow-menu').classList.toggle('open');
+});
+document.addEventListener('click', e => {
+  if (!document.getElementById('overflow-wrap').contains(e.target)) closeOverflow();
 });
 
-document.getElementById('modal-close').addEventListener('click', closeModal);
-document.getElementById('modal-cancel').addEventListener('click', closeModal);
-document.getElementById('modal').addEventListener('click', e => { if (e.target === e.currentTarget) closeModal(); });
-document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+/* ============================================================
+   TABS
+   ============================================================ */
+function setView(v) {
+  view = v;
+  document.getElementById('tab-active').classList.toggle('on', v === 'active');
+  document.getElementById('tab-all').classList.toggle('on', v === 'all');
+  document.getElementById('tabs-note').style.display = v === 'active' ? '' : 'none';
+  renderAll();
+}
 
-function renderAll() { renderCats(); recalc(); save(); }
-
-/* ---------- init ---------- */
 document.getElementById('tab-active').addEventListener('click', () => setView('active'));
 document.getElementById('tab-all').addEventListener('click', () => setView('all'));
 document.getElementById('view-all-link').addEventListener('click', () => setView('all'));
 document.getElementById('btn-inactive').addEventListener('click', () => setView('all'));
 document.getElementById('btn-add').addEventListener('click', openModal);
-renderAll();
+document.getElementById('btn-lock').addEventListener('click', handleLockBtn);
+
+/* ============================================================
+   INIT — fetch from Supabase
+   ============================================================ */
+function setLoading(on) {
+  document.getElementById('cats').innerHTML = on
+    ? '<div class="loading-state"><span class="spinner"></span> Loading subscriptions…</div>'
+    : '';
+}
+
+async function loadAndRender() {
+  setLoading(true);
+  try {
+    subs = await db.get('/rest/v1/subscriptions?select=*&order=created_at');
+    renderAll();
+  } catch(err) {
+    document.getElementById('cats').innerHTML =
+      '<div class="err-state"><i class="ti ti-wifi-off"></i><p>Could not connect to database.</p><small>Check your internet connection and try refreshing.</small></div>';
+  }
+}
+
+loadAndRender();
 
 </script>
 </body>
