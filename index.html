@@ -135,6 +135,12 @@ table.subs{width:100%;border-collapse:collapse}
 .dots{background:none;border:none;color:#a0a0a6;font-size:16px;cursor:pointer;padding:4px 6px;border-radius:6px}
 .dots:hover{background:#f0f0f2;color:var(--ink)}
 
+/* ---------- renewal warning ---------- */
+.subs tbody tr.renews-soon td{background:#fffbf0}
+.subs tbody tr.renews-soon:hover td{background:#fff7e6}
+.subs tbody tr.renews-soon td:first-child{box-shadow:inset 3px 0 0 #f59e0b}
+.renew-pill{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:600;color:#b45309;background:#fde68a;padding:3px 8px;border-radius:20px;margin-left:8px;vertical-align:middle;white-space:nowrap}
+
 /* ---------- inactive banner ---------- */
 .inactive-banner{display:flex;align-items:center;gap:13px;background:var(--card);border:1px solid var(--hair);border-radius:14px;padding:15px 16px;margin-bottom:18px}
 .inactive-ico{width:34px;height:34px;border-radius:9px;background:var(--green-tint);color:var(--green-text);display:flex;align-items:center;justify-content:center;font-size:16px}
@@ -566,15 +572,30 @@ function logoHtml(l) {
   return '<span class="logo" style="background:' + l.bg + ';color:' + fg + ';' + border + serif + small + '">' + l.txt + '</span>';
 }
 
+function daysUntil(dateStr) {
+  const now = new Date(); now.setHours(0,0,0,0);
+  const d   = new Date(dateStr + 'T00:00:00'); d.setHours(0,0,0,0);
+  return Math.round((d - now) / (1000*60*60*24));
+}
+
+function renewPill(dateStr) {
+  const days = daysUntil(dateStr);
+  if (days < 0 || days > 5) return '';
+  const label = days === 0 ? 'today' : days === 1 ? 'tomorrow' : 'in ' + days + 'd';
+  return '<span class="renew-pill"><i class="ti ti-alert-triangle" style="font-size:10px" aria-hidden="true"></i> renews ' + label + '</span>';
+}
+
 function rowHtml(s) {
-  const isAnnual  = s.cycle === 'annual';
-  const priceMain = isAnnual ? '$' + fmt(s.price) + '<span class="per">/yr</span>' : '$' + fmt(s.price) + '<span class="per">/mo</span>';
-  const priceSub  = isAnnual ? '<div class="price-sub">$' + fmt(s.price / 12) + '/mo</div>' : '';
-  const toggleEl  = isUnlocked
+  const days       = daysUntil(s.renewal);
+  const soonClass   = (s.active && days >= 0 && days <= 5) ? ' renews-soon' : '';
+  const isAnnual    = s.cycle === 'annual';
+  const priceMain   = isAnnual ? '$' + fmt(s.price) + '<span class="per">/yr</span>' : '$' + fmt(s.price) + '<span class="per">/mo</span>';
+  const priceSub    = isAnnual ? '<div class="price-sub">$' + fmt(s.price / 12) + '/mo</div>' : '';
+  const toggleEl    = isUnlocked
     ? '<label class="toggle" aria-label="Toggle ' + s.name + '"><input type="checkbox" ' + (s.active ? 'checked' : '') + ' data-id="' + s.id + '"><span class="slider"></span></label>'
     : '<label class="toggle toggle-locked"><input type="checkbox" ' + (s.active ? 'checked' : '') + ' disabled><span class="slider"></span></label>';
-  const dotsEl = isUnlocked ? '<button class="dots" data-id="' + s.id + '" aria-label="More options">···</button>' : '';
-  return '<tr class="' + (s.active ? '' : 'off') + '" data-id="' + s.id + '"><td><span class="svc">' + logoHtml(s.logo) + '<span class="svc-name">' + s.name + '</span></span></td><td><span class="badge ' + s.cycle + '">' + (isAnnual ? 'Annual' : 'Monthly') + '</span></td><td><span class="price-cell">' + priceMain + '</span>' + priceSub + '</td><td><span class="date-cell">' + fmtDate(s.renewal) + '</span></td><td>' + toggleEl + '</td><td style="text-align:right">' + dotsEl + '</td></tr>';
+  const dotsEl      = isUnlocked ? '<button class="dots" data-id="' + s.id + '" aria-label="More options">···</button>' : '';
+  return '<tr class="' + (s.active ? '' : 'off') + soonClass + '" data-id="' + s.id + '"><td><span class="svc">' + logoHtml(s.logo) + '<span class="svc-name">' + s.name + renewPill(s.renewal) + '</span></span></td><td><span class="badge ' + s.cycle + '">' + (isAnnual ? 'Annual' : 'Monthly') + '</span></td><td><span class="price-cell">' + priceMain + '</span>' + priceSub + '</td><td><span class="date-cell">' + fmtDate(s.renewal) + '</span></td><td>' + toggleEl + '</td><td style="text-align:right">' + dotsEl + '</td></tr>';
 }
 
 function renderCats() {
