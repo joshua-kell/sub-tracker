@@ -436,6 +436,9 @@ const KNOWN_LOGOS = {
   'github':           { bg:'#24292f', slug:'github',         ic:'ffffff' },
   'github copilot':   { bg:'#24292f', slug:'github',         ic:'ffffff' },
   'github pro':       { bg:'#24292f', slug:'github',         ic:'ffffff' },
+  'claude':          { bg:'#d97757', txt:'C' },
+  'claude pro':       { bg:'#d97757', txt:'C' },
+  'anthropic':        { bg:'#d97757', txt:'A' },
   'chatgpt':          { bg:'#10a37f', txt:'C' },
   'chatgpt plus':     { bg:'#10a37f', txt:'C' },
   'openai':           { bg:'#10a37f', txt:'C' },
@@ -446,9 +449,11 @@ const KNOWN_LOGOS = {
   'vercel':           { bg:'#111111', slug:'vercel',         ic:'ffffff' },
   'vercel pro':       { bg:'#111111', slug:'vercel',         ic:'ffffff' },
   'dropbox':          { bg:'#ffffff', slug:'dropbox',        ic:'0061ff', border:true },
-  'google one':       { bg:'#4285f4', slug:'google',         ic:'ffffff' },
-  'icloud':           { bg:'#3478f6', slug:'icloud',         ic:'ffffff' },
-  'icloud+':          { bg:'#3478f6', slug:'icloud',         ic:'ffffff' },
+  'google':          { bg:'#ffffff', slug:'google',        ic:'4285f4', border:true },
+  'google one':       { bg:'#ffffff', slug:'google',        ic:'4285f4', border:true },
+  'google workspace': { bg:'#ffffff', slug:'google',        ic:'4285f4', border:true },
+  'icloud':           { bg:'#3478f6', slug:'icloud',        ic:'ffffff', txt:'i' },
+  'icloud+':          { bg:'#3478f6', slug:'icloud',        ic:'ffffff', txt:'i' },
   'microsoft 365':    { bg:'#d83b01', slug:'microsoft',      ic:'ffffff' },
   'office 365':       { bg:'#d83b01', slug:'microsoft',      ic:'ffffff' },
   'adobe':            { bg:'#ff0000', slug:'adobe',          ic:'ffffff' },
@@ -973,7 +978,7 @@ function setLoading(on) {
 async function loadAndRender() {
   setLoading(true);
   try {
-    subs = await db.get('/rest/v1/subscriptions?select=*&order=created_at');
+    subs = (await db.get('/rest/v1/subscriptions?select=*&order=created_at')).map(s => Object.assign({}, s, { logo: logoForName(s.name) }));
     renderAll();
   } catch(err) {
     document.getElementById('cats').innerHTML =
