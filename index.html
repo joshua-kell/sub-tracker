@@ -1,1 +1,656 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Autopay Subscription Tracker</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.31.0/dist/tabler-icons.min.css">
+<style>
+:root{
+  --font-sans:"Helvetica Neue",Helvetica,Arial,sans-serif;
+  --paper:#f7f7f8;
+  --ink:#16161a;
+  --muted:#8e8e95;
+  --hair:#ececef;
+  --green:#00a857;
+  --green-dark:#008f4a;
+  --green-tint:#e7f6ee;
+  --green-text:#0c7a44;
+  --purple:#7c5cfc;
+  --purple-tint:#efedfb;
+  --purple-text:#5b3fd6;
+  --orange:#f59e0b;
+  --orange-tint:#fdf2e2;
+  --orange-text:#b45309;
+  --card:#ffffff;
+  --grey-track:#d7d7db;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--paper);font-family:var(--font-sans);color:var(--ink);-webkit-font-smoothing:antialiased}
+body{padding:44px 32px 56px;min-height:100vh}
+.wrap{max-width:920px;margin:0 auto}
 
+/* ---------- header ---------- */
+.head{display:flex;align-items:flex-start;justify-content:space-between;gap:24px;margin-bottom:10px}
+.head h1{font-size:34px;font-weight:700;letter-spacing:-0.025em;line-height:1.1}
+.head-sub{font-size:15px;color:var(--muted);margin:8px 0 28px}
+.btn-add{display:inline-flex;align-items:center;gap:7px;background:var(--green);color:#fff;border:none;border-radius:10px;padding:11px 18px;font-family:var(--font-sans);font-size:13.5px;font-weight:600;cursor:pointer;box-shadow:0 1px 2px rgba(0,90,45,.25);transition:background .15s;white-space:nowrap}
+.btn-add:hover{background:var(--green-dark)}
+
+/* ---------- stat cards ---------- */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:28px}
+.stat-card{position:relative;background:var(--card);border:1px solid var(--hair);border-radius:14px;padding:16px;overflow:hidden}
+.stat-top{display:flex;align-items:center;gap:9px;margin-bottom:14px}
+.stat-icon{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px}
+.stat-icon.green{background:var(--green-tint);color:var(--green-text)}
+.stat-icon.indigo{background:#ebeafd;color:#5b4fd8}
+.stat-icon.amber{background:var(--orange-tint);color:var(--orange-text)}
+.stat-label{font-size:12.5px;font-weight:600;color:#3c3c42}
+.stat-value{font-size:25px;font-weight:700;letter-spacing:-0.02em;line-height:1}
+.stat-foot{font-size:11.5px;color:var(--muted);margin-top:10px}
+.spark{position:absolute;right:10px;bottom:8px;width:64px;height:30px}
+
+/* ---------- tabs row ---------- */
+.tabs-row{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:12px}
+.tabs{display:flex;background:var(--card);border:1px solid var(--hair);border-radius:11px;padding:3px;gap:2px}
+.tab{display:inline-flex;align-items:center;gap:7px;border:none;background:none;font-family:var(--font-sans);font-size:13px;font-weight:600;color:var(--muted);padding:8px 16px;border-radius:8px;cursor:pointer;transition:background .15s,color .15s}
+.tab.on{background:var(--green-tint);color:var(--green-text)}
+.btn-filter{display:inline-flex;align-items:center;gap:7px;background:var(--card);border:1px solid var(--hair);border-radius:11px;padding:10px 16px;font-family:var(--font-sans);font-size:13px;font-weight:600;color:#3c3c42;cursor:pointer}
+.btn-filter:hover{border-color:#d8d8dc}
+.tabs-note{font-size:12.5px;color:var(--muted);margin-bottom:18px}
+.tabs-note a{color:var(--green-text);font-weight:600;text-decoration:none;cursor:pointer}
+.tabs-note a:hover{text-decoration:underline}
+
+/* ---------- category section ---------- */
+.cat{background:var(--card);border:1px solid var(--hair);border-radius:14px;margin-bottom:18px;overflow:hidden}
+.cat-head{display:flex;align-items:center;gap:11px;padding:13px 16px;cursor:pointer;user-select:none}
+.cat-head.green{background:var(--green-tint)}
+.cat-head.purple{background:var(--purple-tint)}
+.cat-head.orange{background:var(--orange-tint)}
+.cat-ico{width:32px;height:32px;border-radius:8px;background:#fff;display:flex;align-items:center;justify-content:center;font-size:16px;box-shadow:0 1px 2px rgba(0,0,0,.06)}
+.cat-head.green .cat-ico{color:var(--green-text)}
+.cat-head.purple .cat-ico{color:var(--purple-text)}
+.cat-head.orange .cat-ico{color:var(--orange-text)}
+.cat-title{font-size:15.5px;font-weight:700;letter-spacing:-0.01em}
+.cat-count{font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px;background:#fff}
+.cat-head.green .cat-count{color:var(--green-text)}
+.cat-head.purple .cat-count{color:var(--purple-text)}
+.cat-head.orange .cat-count{color:var(--orange-text)}
+.cat-spacer{flex:1}
+.cat-total{font-size:14.5px;font-weight:700}
+.cat-total span{font-size:11.5px;font-weight:500;color:#6f6f76}
+.cat-chev{font-size:15px;color:#6f6f76;transition:transform .2s}
+.cat.closed .cat-chev{transform:rotate(-180deg)}
+.cat.closed .cat-body{display:none}
+
+/* ---------- table ---------- */
+table.subs{width:100%;border-collapse:collapse}
+.subs thead th{font-size:11.5px;font-weight:600;color:var(--muted);text-align:left;padding:11px 16px;border-bottom:1px solid var(--hair)}
+.subs tbody td{padding:13px 16px;border-bottom:1px solid #f3f3f5;font-size:13.5px;vertical-align:middle}
+.subs tbody tr:last-child td{border-bottom:none}
+.subs tbody tr{transition:background .12s}
+.subs tbody tr:hover{background:#fafafb}
+.subs tr.off td{opacity:.45}
+.subs tr.off td:last-child,.subs tr.off td:nth-last-child(2){opacity:1}
+
+.svc{display:flex;align-items:center;gap:11px}
+.logo{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:12.5px;font-weight:700;flex-shrink:0}
+.svc-name{font-weight:600}
+
+.badge{display:inline-block;font-size:11px;font-weight:600;padding:3.5px 10px;border-radius:20px}
+.badge.monthly{background:var(--green-tint);color:var(--green-text)}
+.badge.annual{background:var(--orange-tint);color:var(--orange-text)}
+
+.price-cell{font-weight:600}
+.price-cell .per{font-size:11px;color:var(--muted);font-weight:500}
+.price-sub{font-size:11px;color:var(--muted);font-weight:500;margin-top:2px}
+.date-cell{color:#3c3c42}
+
+.toggle{position:relative;width:38px;height:21px;display:inline-block;vertical-align:middle}
+.toggle input{opacity:0;width:0;height:0;position:absolute}
+.slider{position:absolute;inset:0;border-radius:22px;cursor:pointer;background:var(--grey-track);transition:background .2s}
+.slider:before{content:'';position:absolute;width:15px;height:15px;left:3px;top:3px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.2);transition:transform .2s}
+.toggle input:checked + .slider{background:var(--green)}
+.toggle input:checked + .slider:before{transform:translateX(17px)}
+
+.dots{background:none;border:none;color:#a0a0a6;font-size:16px;cursor:pointer;padding:4px 6px;border-radius:6px}
+.dots:hover{background:#f0f0f2;color:var(--ink)}
+
+/* ---------- inactive banner ---------- */
+.inactive-banner{display:flex;align-items:center;gap:13px;background:var(--card);border:1px solid var(--hair);border-radius:14px;padding:15px 16px;margin-bottom:18px}
+.inactive-ico{width:34px;height:34px;border-radius:9px;background:var(--green-tint);color:var(--green-text);display:flex;align-items:center;justify-content:center;font-size:16px}
+.inactive-banner h3{font-size:14px;font-weight:700}
+.inactive-banner p{font-size:12.5px;color:var(--muted);margin-top:3px}
+.inactive-spacer{flex:1}
+.btn-ghost{display:inline-flex;align-items:center;gap:7px;background:#fff;border:1px solid var(--hair);border-radius:10px;padding:10px 16px;font-family:var(--font-sans);font-size:13px;font-weight:600;color:#3c3c42;cursor:pointer}
+.btn-ghost:hover{border-color:#d8d8dc}
+
+/* ---------- summary ---------- */
+.summary{display:flex;align-items:center;gap:0;background:var(--card);border:1px solid var(--hair);border-radius:14px;padding:20px 22px;flex-wrap:wrap}
+.sum-cell{display:flex;align-items:center;gap:13px;padding:0 22px;border-right:1px solid var(--hair)}
+.sum-cell:first-child{padding-left:0}
+.sum-ico{width:38px;height:38px;border-radius:50%;background:var(--green-tint);color:var(--green-text);display:flex;align-items:center;justify-content:center;font-size:17px}
+.sum-label{font-size:11px;color:var(--muted);font-weight:500}
+.sum-value{font-size:19px;font-weight:700;letter-spacing:-0.02em;margin:3px 0}
+.sum-value .per{font-size:11px;font-weight:500;color:var(--muted)}
+.sum-foot{font-size:10.5px;color:var(--muted)}
+.donut-cell{display:flex;align-items:center;gap:16px;padding:0 0 0 22px;margin-left:auto}
+.legend{display:flex;flex-direction:column;gap:7px}
+.legend-row{display:flex;align-items:center;gap:8px;font-size:11.5px}
+.legend-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.legend-name{font-weight:600;min-width:118px}
+.legend-val{color:var(--muted)}
+
+.foot-note{text-align:center;font-size:11.5px;color:#b3b3b8;margin-top:22px}
+
+/* ---------- toast ---------- */
+.toast{position:fixed;left:50%;bottom:26px;transform:translate(-50%,16px);background:#1c1c21;color:#fff;border-radius:12px;padding:11px 14px 11px 18px;display:flex;align-items:center;gap:14px;font-size:13px;font-weight:500;box-shadow:0 12px 32px rgba(20,20,30,.3);opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;z-index:70}
+.toast.show{opacity:1;transform:translate(-50%,0);pointer-events:auto}
+.toast .undo{background:none;border:none;color:#4ade80;font-family:var(--font-sans);font-size:13px;font-weight:700;cursor:pointer;padding:6px 8px;border-radius:8px}
+.toast .undo:hover{background:rgba(255,255,255,.1)}
+
+/* ---------- row menu ---------- */
+.row-menu{position:fixed;z-index:60;background:#fff;border:1px solid var(--hair);border-radius:12px;box-shadow:0 10px 30px rgba(20,20,30,.14);padding:5px;min-width:150px;display:none}
+.row-menu.open{display:block}
+.row-menu button{display:flex;align-items:center;gap:9px;width:100%;background:none;border:none;font-family:var(--font-sans);font-size:13px;font-weight:500;color:var(--ink);padding:9px 11px;border-radius:8px;cursor:pointer;text-align:left}
+.row-menu button:hover{background:#f5f5f7}
+.row-menu button.danger{color:#d6312b}
+.row-menu button.danger:hover{background:#fdf0ef}
+
+/* ---------- modal ---------- */
+.modal-overlay{position:fixed;inset:0;background:rgba(22,22,26,.45);display:none;align-items:center;justify-content:center;padding:24px;z-index:50}
+.modal-overlay.open{display:flex}
+.modal{background:#fff;border-radius:18px;width:440px;max-width:100%;padding:24px;box-shadow:0 24px 60px rgba(20,20,30,.25);animation:modal-in .18s ease}
+@keyframes modal-in{from{opacity:0;transform:translateY(10px) scale(.98)}to{opacity:1;transform:none}}
+.modal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.modal-head h2{font-size:18px;font-weight:700;letter-spacing:-0.01em}
+.modal-x{background:none;border:none;color:#a0a0a6;font-size:18px;cursor:pointer;padding:6px;border-radius:8px;display:flex}
+.modal-x:hover{background:#f0f0f2;color:var(--ink)}
+.field{display:flex;flex-direction:column;gap:7px;margin-bottom:16px;flex:1}
+.field label{font-size:12px;font-weight:600;color:#3c3c42}
+.field input{font-family:var(--font-sans);font-size:14px;padding:10px 12px;border:1px solid #ddddE2;border-radius:10px;background:#fff;color:var(--ink);width:100%}
+.field input:focus{outline:none;border-color:var(--green);box-shadow:0 0 0 3px rgba(0,168,87,.12)}
+.field-row{display:flex;gap:14px}
+.input-wrap{position:relative}
+.input-pre{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:14px}
+.input-wrap input{padding-left:26px}
+.seg{display:flex;background:#f3f3f5;border-radius:10px;padding:3px;gap:2px}
+.seg-btn{flex:1;border:none;background:none;font-family:var(--font-sans);font-size:12px;font-weight:600;color:var(--muted);padding:8px 6px;border-radius:8px;cursor:pointer;white-space:nowrap;transition:background .12s,color .12s}
+.seg-btn.on{background:#fff;color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.08)}
+.modal-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:22px}
+
+@media(max-width:860px){
+  .stats{grid-template-columns:repeat(2,1fr)}
+  .summary{gap:18px}
+  .sum-cell{border-right:none;padding:0}
+  .donut-cell{margin-left:0;padding:0}
+}
+@media(max-width:560px){
+  body{padding:28px 16px 40px}
+  .stats{grid-template-columns:1fr}
+  .subs thead th:nth-child(2),.subs tbody td:nth-child(2){display:none}
+}
+
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="head" data-screen-label="Header">
+    <div>
+      <h1>Autopay Subscription Tracker</h1>
+      <p class="head-sub">Track and manage all your recurring subscriptions in one place.</p>
+    </div>
+    <button class="btn-add" id="btn-add"><i class="ti ti-plus" aria-hidden="true"></i> Add Subscription</button>
+  </div>
+
+  <div class="stats" data-screen-label="Stat cards">
+    <div class="stat-card">
+      <div class="stat-top"><span class="stat-icon green"><i class="ti ti-trending-up" aria-hidden="true"></i></span><span class="stat-label">Monthly Total</span></div>
+      <div class="stat-value" id="stat-monthly">$0</div>
+      <div class="stat-foot" id="stat-monthly-foot"></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-top"><span class="stat-icon indigo"><i class="ti ti-chart-bar" aria-hidden="true"></i></span><span class="stat-label">Annual Total</span></div>
+      <div class="stat-value" id="stat-annual">$0</div>
+      <div class="stat-foot">based on active subscriptions</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-top"><span class="stat-icon amber"><i class="ti ti-packages" aria-hidden="true"></i></span><span class="stat-label">Active Subscriptions</span></div>
+      <div class="stat-value" id="stat-count">0</div>
+      <div class="stat-foot" id="stat-count-foot"></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-top"><span class="stat-icon indigo"><i class="ti ti-calendar-event" aria-hidden="true"></i></span><span class="stat-label">Next Renewal</span></div>
+      <div class="stat-value" id="stat-renewal">—</div>
+      <div class="stat-foot" id="stat-renewal-foot"></div>
+    </div>
+  </div>
+
+  <div class="tabs-row" data-screen-label="Tabs">
+    <div class="tabs">
+      <button class="tab on" id="tab-active"><i class="ti ti-users" aria-hidden="true"></i> <span id="tab-active-label">Active</span></button>
+      <button class="tab" id="tab-all"><span id="tab-all-label">All Subscriptions</span></button>
+    </div>
+  </div>
+  <p class="tabs-note" id="tabs-note">Only active subscriptions are shown. <a id="view-all-link">View all</a> to manage inactive ones.</p>
+
+  <div id="cats"></div>
+
+  <div class="inactive-banner" data-screen-label="Inactive banner">
+    <span class="inactive-ico"><i class="ti ti-archive" aria-hidden="true"></i></span>
+    <div>
+      <h3>Inactive subscriptions</h3>
+      <p>View and reactivate subscriptions you've turned off.</p>
+    </div>
+    <span class="inactive-spacer"></span>
+    <button class="btn-ghost" id="btn-inactive"><span id="inactive-count">View all inactive</span> <i class="ti ti-chevron-right" aria-hidden="true"></i></button>
+  </div>
+
+  <div class="summary" data-screen-label="Spending summary">
+    <div class="sum-cell">
+      <span class="sum-ico"><i class="ti ti-currency-dollar" aria-hidden="true"></i></span>
+      <div>
+        <div class="sum-label">You're spending</div>
+        <div class="sum-value" id="sum-monthly">—</div>
+        <div class="sum-foot" id="sum-monthly-foot"></div>
+      </div>
+    </div>
+    <div class="sum-cell">
+      <div>
+        <div class="sum-label">That's</div>
+        <div class="sum-value" id="sum-annual">—</div>
+        <div class="sum-foot">based on active subscriptions</div>
+      </div>
+    </div>
+    <div class="sum-cell" style="border-right:none">
+      <div>
+        <div class="sum-label">Average per subscription</div>
+        <div class="sum-value" id="sum-avg">—</div>
+        <div class="sum-foot">across 3 categories</div>
+      </div>
+    </div>
+    <div class="donut-cell">
+      <svg id="donut" width="64" height="64" viewBox="0 0 64 64" aria-label="Spending by category"></svg>
+      <div class="legend" id="legend"></div>
+    </div>
+  </div>
+
+  <p class="foot-note">All amounts in USD</p>
+
+</div>
+
+<div class="modal-overlay" id="modal" data-screen-label="Add Subscription modal">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal-head">
+      <h2 id="modal-title">Add Subscription</h2>
+      <button class="modal-x" id="modal-close" aria-label="Close"><i class="ti ti-x" aria-hidden="true"></i></button>
+    </div>
+    <form id="add-form">
+      <div class="field">
+        <label for="f-name">Service name</label>
+        <input type="text" id="f-name" placeholder="e.g. Figma" required autocomplete="off">
+      </div>
+      <div class="field">
+        <label>Category</label>
+        <div class="seg" id="f-cat">
+          <button type="button" class="seg-btn on" data-val="tech">Tech</button>
+          <button type="button" class="seg-btn" data-val="entertainment">Entertainment</button>
+          <button type="button" class="seg-btn" data-val="productivity">Productivity &amp; News</button>
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label for="f-price">Price</label>
+          <div class="input-wrap"><span class="input-pre">$</span><input type="number" id="f-price" placeholder="0.00" step="0.01" min="0" required></div>
+        </div>
+        <div class="field">
+          <label>Billing</label>
+          <div class="seg" id="f-cycle">
+            <button type="button" class="seg-btn on" data-val="monthly">Monthly</button>
+            <button type="button" class="seg-btn" data-val="annual">Annual</button>
+          </div>
+        </div>
+      </div>
+      <div class="field">
+        <label for="f-renewal">Next renewal date</label>
+        <input type="date" id="f-renewal" required>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn-ghost" id="modal-cancel">Cancel</button>
+        <button type="submit" class="btn-add" id="modal-submit"><i class="ti ti-plus" aria-hidden="true"></i> Add Subscription</button>
+      </div>
+    </form>
+  </div>
+</div>
+<script>
+/* AutoPay Subscription Tracker — data + rendering */
+
+const CATS = [
+  { id: 'tech', label: 'Tech', icon: 'ti-device-desktop', theme: 'green' },
+  { id: 'entertainment', label: 'Entertainment', icon: 'ti-movie', theme: 'purple' },
+  { id: 'productivity', label: 'Productivity & News', icon: 'ti-layout-grid', theme: 'orange' },
+];
+const THEME_COLORS = { green: '#00a857', purple: '#7c5cfc', orange: '#f59e0b' };
+
+let subs = [
+  { id: 1, name: 'ChatGPT Plus', price: 20.00, cycle: 'monthly', renewal: '2026-06-30', active: true, cat: 'tech', logo: { bg: '#10a37f', txt: 'C' } },
+  { id: 2, name: 'Vercel Pro', price: 20.00, cycle: 'monthly', renewal: '2026-07-05', active: true, cat: 'tech', logo: { bg: '#111111', txt: 'V', slug: 'vercel', ic: 'ffffff' } },
+  { id: 3, name: 'GitHub Copilot', price: 10.00, cycle: 'monthly', renewal: '2026-07-01', active: true, cat: 'tech', logo: { bg: '#24292f', txt: 'G', slug: 'github', ic: 'ffffff' } },
+  { id: 4, name: 'Linear', price: 8.00, cycle: 'monthly', renewal: '2026-06-15', active: true, cat: 'tech', logo: { bg: '#222326', txt: 'L', slug: 'linear', ic: '5e6ad2' } },
+  { id: 5, name: 'Netflix', price: 15.49, cycle: 'monthly', renewal: '2026-06-12', active: true, cat: 'entertainment', logo: { bg: '#1a1a1a', txt: 'N', fg: '#e50914', slug: 'netflix', ic: 'e50914' } },
+  { id: 6, name: 'YouTube TV', price: 72.99, cycle: 'monthly', renewal: '2026-06-28', active: true, cat: 'entertainment', logo: { bg: '#ff0000', txt: 'Y', slug: 'youtube', ic: 'ffffff' } },
+  { id: 7, name: 'Disney+', price: 7.99, cycle: 'monthly', renewal: '2026-06-18', active: true, cat: 'entertainment', logo: { bg: '#0e2a6a', txt: 'D+', small: true } },
+  { id: 8, name: 'Notion Plus', price: 10.00, cycle: 'monthly', renewal: '2026-07-03', active: true, cat: 'productivity', logo: { bg: '#ffffff', txt: 'N', fg: '#111', border: true, slug: 'notion', ic: '111111' } },
+  { id: 9, name: 'The Atlantic', price: 59.99, cycle: 'annual', renewal: '2027-02-10', active: true, cat: 'productivity', logo: { bg: '#ffffff', txt: 'A', fg: '#d6312b', border: true, serif: true } },
+  { id: 10, name: 'NYTimes', price: 25.00, cycle: 'monthly', renewal: '2026-06-22', active: true, cat: 'productivity', logo: { bg: '#ffffff', txt: 'T', fg: '#111', border: true, serif: true, slug: 'newyorktimes', ic: '111111' } },
+  { id: 11, name: 'Todoist', price: 4.00, cycle: 'monthly', renewal: '2026-06-25', active: true, cat: 'productivity', logo: { bg: '#ffffff', txt: 'T', fg: '#e44332', border: true, slug: 'todoist', ic: 'e44332' } },
+  { id: 12, name: '1Password', price: 2.99, cycle: 'monthly', renewal: '2026-07-08', active: true, cat: 'productivity', logo: { bg: '#1a8cff', txt: '1', slug: '1password', ic: 'ffffff' } },
+  { id: 13, name: 'HBO Max', price: 15.99, cycle: 'monthly', renewal: '2026-07-10', active: false, cat: 'entertainment', logo: { bg: '#2723a5', txt: 'H', slug: 'hbo', ic: 'ffffff' } },
+  { id: 14, name: 'Spotify', price: 10.99, cycle: 'monthly', renewal: '2026-06-20', active: false, cat: 'entertainment', logo: { bg: '#1a1a1a', txt: 'S', fg: '#1db954', slug: 'spotify', ic: '1ed760' } },
+  { id: 15, name: 'Dropbox', price: 11.99, cycle: 'monthly', renewal: '2026-07-12', active: false, cat: 'tech', logo: { bg: '#ffffff', txt: 'D', fg: '#0061ff', border: true, slug: 'dropbox', ic: '0061ff' } },
+  { id: 16, name: 'Duolingo Super', price: 6.99, cycle: 'monthly', renewal: '2026-07-02', active: false, cat: 'productivity', logo: { bg: '#ffffff', txt: 'D', fg: '#58cc02', border: true, slug: 'duolingo', ic: '58cc02' } },
+];
+let nextId = 100;
+let view = 'active'; // 'active' | 'all'
+
+/* ---------- persistence ---------- */
+const STORE_KEY = 'autopay.subs.v1';
+function save() {
+  try { localStorage.setItem(STORE_KEY, JSON.stringify(subs)); } catch (e) { /* storage unavailable */ }
+}
+(function load() {
+  try {
+    const raw = localStorage.getItem(STORE_KEY);
+    if (!raw) return;
+    const data = JSON.parse(raw);
+    if (Array.isArray(data) && data.length) {
+      subs = data;
+      nextId = Math.max(...subs.map(s => s.id), 99) + 1;
+    }
+  } catch (e) { /* corrupted data — keep defaults */ }
+})();
+
+/* ---------- helpers ---------- */
+const monthly = s => s.cycle === 'annual' ? s.price / 12 : s.price;
+const fmt = n => n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const fmtDate = d => new Date(d + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+
+/* ---------- stat cards + summary ---------- */
+function recalc() {
+  const active = subs.filter(s => s.active);
+  const mTotal = active.reduce((a, s) => a + monthly(s), 0);
+
+  document.getElementById('stat-monthly').textContent = '$' + fmt(mTotal);
+  document.getElementById('stat-monthly-foot').textContent = `across ${active.length} active subscriptions`;
+  document.getElementById('stat-annual').textContent = '$' + fmt(mTotal * 12);
+  document.getElementById('stat-count').textContent = active.length;
+  const catCount = new Set(active.map(s => s.cat)).size;
+  document.getElementById('stat-count-foot').textContent = `across ${catCount} categories`;
+
+  const upcoming = active.slice().sort((a, b) => a.renewal.localeCompare(b.renewal))[0];
+  if (upcoming) {
+    document.getElementById('stat-renewal').textContent = new Date(upcoming.renewal + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    document.getElementById('stat-renewal-foot').innerHTML = `${upcoming.name} &nbsp;·&nbsp; $${fmt(upcoming.price)}`;
+  }
+
+  document.getElementById('tab-active-label').textContent = `Active (${active.length})`;
+  document.getElementById('tab-all-label').textContent = `All Subscriptions (${subs.length})`;
+  const inactiveCount = subs.length - active.length;
+  document.getElementById('inactive-count').textContent = `View all inactive (${inactiveCount})`;
+
+  /* summary strip */
+  document.getElementById('sum-monthly').innerHTML = `$${fmt(mTotal)} <span class="per">/mo</span>`;
+  document.getElementById('sum-monthly-foot').textContent = `on ${active.length} active subscriptions`;
+  document.getElementById('sum-annual').innerHTML = `$${fmt(mTotal * 12)} <span class="per">/yr</span>`;
+  document.getElementById('sum-avg').innerHTML = active.length ? `$${fmt(mTotal / active.length)} <span class="per">/mo</span>` : '—';
+
+  drawDonut(active, mTotal);
+}
+
+function drawDonut(active, mTotal) {
+  const byCat = CATS.map(c => ({
+    ...c,
+    total: active.filter(s => s.cat === c.id).reduce((a, s) => a + monthly(s), 0),
+  })).filter(c => c.total > 0).sort((a, b) => b.total - a.total);
+
+  const svg = document.getElementById('donut');
+  const R = 26, CX = 32, CY = 32, SW = 12;
+  const circ = 2 * Math.PI * R;
+  let offset = 0;
+  svg.innerHTML = byCat.map(c => {
+    const frac = mTotal ? c.total / mTotal : 0;
+    const seg = `<circle cx="${CX}" cy="${CY}" r="${R}" fill="none" stroke="${THEME_COLORS[c.theme]}" stroke-width="${SW}"
+      stroke-dasharray="${(frac * circ).toFixed(2)} ${circ.toFixed(2)}" stroke-dashoffset="${(-offset * circ).toFixed(2)}"
+      transform="rotate(-90 ${CX} ${CY})"></circle>`;
+    offset += frac;
+    return seg;
+  }).join('');
+
+  document.getElementById('legend').innerHTML = byCat.map(c => `
+    <div class="legend-row">
+      <span class="legend-dot" style="background:${THEME_COLORS[c.theme]}"></span>
+      <span class="legend-name">${c.label}</span>
+      <span class="legend-val">$${fmt(c.total)}/mo (${mTotal ? Math.round(c.total / mTotal * 100) : 0}%)</span>
+    </div>`).join('');
+}
+
+/* ---------- rows ---------- */
+function logoHtml(l) {
+  const fg = l.fg || '#fff';
+  const border = l.border ? 'border:1px solid #e5e5e8;' : '';
+  const serif = l.serif ? 'font-family:Georgia,serif;' : '';
+  const small = l.small ? 'font-size:10.5px;letter-spacing:-0.5px;' : '';
+  if (l.slug) {
+    return `<span class="logo" style="background:${l.bg};color:${fg};${border}${serif}${small}"><img src="https://cdn.simpleicons.org/${l.slug}/${l.ic}" width="16" height="16" alt="" onerror="this.replaceWith('${l.txt}')"></span>`;
+  }
+  return `<span class="logo" style="background:${l.bg};color:${fg};${border}${serif}${small}">${l.txt}</span>`;
+}
+
+function rowHtml(s) {
+  const isAnnual = s.cycle === 'annual';
+  const priceMain = isAnnual ? `$${fmt(s.price)}<span class="per">/yr</span>` : `$${fmt(s.price)}<span class="per">/mo</span>`;
+  const priceSub = isAnnual ? `<div class="price-sub">$${fmt(s.price / 12)}/mo</div>` : '';
+  return `
+  <tr class="${s.active ? '' : 'off'}" data-id="${s.id}">
+    <td><span class="svc">${logoHtml(s.logo)}<span class="svc-name">${s.name}</span></span></td>
+    <td><span class="badge ${s.cycle}">${s.cycle === 'annual' ? 'Annual' : 'Monthly'}</span></td>
+    <td><span class="price-cell">${priceMain}</span>${priceSub}</td>
+    <td><span class="date-cell">${fmtDate(s.renewal)}</span></td>
+    <td>
+      <label class="toggle" aria-label="Toggle ${s.name}">
+        <input type="checkbox" ${s.active ? 'checked' : ''} data-id="${s.id}">
+        <span class="slider"></span>
+      </label>
+    </td>
+    <td style="text-align:right"><button class="dots" data-id="${s.id}" aria-label="More options for ${s.name}">···</button></td>
+  </tr>`;
+}
+
+/* ---------- categories ---------- */
+function renderCats() {
+  const host = document.getElementById('cats');
+  host.innerHTML = CATS.map((c, i) => {
+    const all = subs.filter(s => s.cat === c.id);
+    const items = view === 'active' ? all.filter(s => s.active) : all;
+    if (!items.length) return '';
+    const activeItems = all.filter(s => s.active);
+    const catTotal = activeItems.reduce((a, s) => a + monthly(s), 0);
+    return `
+    <section class="cat" data-cat="${c.id}" data-screen-label="${c.label}">
+      <div class="cat-head ${c.theme}" role="button" tabindex="0" aria-label="Collapse ${c.label}">
+        <span class="cat-ico"><i class="ti ${c.icon}" aria-hidden="true"></i></span>
+        <span class="cat-title">${i + 1}. ${c.label}</span>
+        <span class="cat-count">${activeItems.length} active</span>
+        <span class="cat-spacer"></span>
+        <span class="cat-total">$${fmt(catTotal)}<span>/mo</span></span>
+        <i class="ti ti-chevron-up cat-chev" aria-hidden="true"></i>
+      </div>
+      <div class="cat-body">
+        <table class="subs">
+          <thead><tr><th>Subscription</th><th>Billing</th><th>Price</th><th>Renewal Date</th><th>Status</th><th></th></tr></thead>
+          <tbody>${items.map(rowHtml).join('')}</tbody>
+        </table>
+      </div>
+    </section>`;
+  }).join('');
+
+  host.querySelectorAll('.cat-head').forEach(h => {
+    h.addEventListener('click', () => h.closest('.cat').classList.toggle('closed'));
+  });
+  host.querySelectorAll('.toggle input').forEach(t => {
+    t.addEventListener('change', function (e) {
+      e.stopPropagation();
+      const sub = subs.find(x => x.id === parseInt(this.dataset.id));
+      if (!sub) return;
+      sub.active = this.checked;
+      renderAll();
+    });
+  });
+  host.querySelectorAll('.dots').forEach(b => {
+    b.addEventListener('click', e => {
+      e.stopPropagation();
+      openRowMenu(b, parseInt(b.dataset.id));
+    });
+  });
+}
+
+/* ---------- row menu (edit / delete) ---------- */
+let menuEl = null;
+function openRowMenu(anchor, id) {
+  closeRowMenu();
+  menuEl = document.createElement('div');
+  menuEl.className = 'row-menu open';
+  menuEl.innerHTML = `
+    <button data-act="edit"><i class="ti ti-pencil" aria-hidden="true"></i> Edit</button>
+    <button data-act="delete" class="danger"><i class="ti ti-trash" aria-hidden="true"></i> Delete</button>`;
+  document.body.appendChild(menuEl);
+  const r = anchor.getBoundingClientRect();
+  const mw = 150;
+  menuEl.style.left = Math.min(r.right - mw, window.innerWidth - mw - 8) + 'px';
+  menuEl.style.top = (r.bottom + 6) + 'px';
+  menuEl.addEventListener('click', e => {
+    const act = e.target.closest('button') ? e.target.closest('button').dataset.act : null;
+    if (act === 'edit') { const sub = subs.find(s => s.id === id); closeRowMenu(); if (sub) openModal(sub); }
+    if (act === 'delete') {
+      const idx = subs.findIndex(s => s.id === id);
+      if (idx > -1) {
+        const [removed] = subs.splice(idx, 1);
+        showUndoToast(removed, idx);
+      }
+      closeRowMenu(); renderAll();
+    }
+  });
+}
+function closeRowMenu() { if (menuEl) { menuEl.remove(); menuEl = null; } }
+document.addEventListener('click', e => { if (menuEl && !menuEl.contains(e.target)) closeRowMenu(); });
+window.addEventListener('scroll', closeRowMenu, true);
+
+/* ---------- undo toast ---------- */
+let toastTimer = null;
+function showUndoToast(sub, idx) {
+  let t = document.getElementById('toast');
+  if (!t) {
+    t = document.createElement('div');
+    t.id = 'toast';
+    t.className = 'toast';
+    document.body.appendChild(t);
+  }
+  t.innerHTML = `<span>Deleted “${sub.name}”</span><button class="undo">Undo</button>`;
+  t.querySelector('.undo').addEventListener('click', () => {
+    subs.splice(Math.min(idx, subs.length), 0, sub);
+    hideToast();
+    renderAll();
+  });
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(hideToast, 6000);
+}
+function hideToast() {
+  const t = document.getElementById('toast');
+  if (t) t.classList.remove('show');
+  clearTimeout(toastTimer);
+}
+
+/* ---------- tabs ---------- */
+function setView(v) {
+  view = v;
+  document.getElementById('tab-active').classList.toggle('on', v === 'active');
+  document.getElementById('tab-all').classList.toggle('on', v === 'all');
+  document.getElementById('tabs-note').style.display = v === 'active' ? '' : 'none';
+  renderAll();
+}
+
+/* ---------- add subscription modal ---------- */
+const TILE_COLORS = ['#5e6ad2', '#0e7a5f', '#b45309', '#7c5cfc', '#0061ff', '#d6312b', '#16161a'];
+
+function segVal(id) { return document.querySelector(`#${id} .seg-btn.on`).dataset.val; }
+
+let editingId = null;
+function segSet(id, val) {
+  document.querySelectorAll(`#${id} .seg-btn`).forEach(b => b.classList.toggle('on', b.dataset.val === val));
+}
+
+function openModal(sub) {
+  const f = document.getElementById('add-form');
+  f.reset();
+  editingId = sub ? sub.id : null;
+  document.getElementById('modal-title').textContent = sub ? 'Edit Subscription' : 'Add Subscription';
+  document.getElementById('modal-submit').innerHTML = sub
+    ? '<i class="ti ti-check" aria-hidden="true"></i> Save Changes'
+    : '<i class="ti ti-plus" aria-hidden="true"></i> Add Subscription';
+  segSet('f-cat', sub ? sub.cat : 'tech');
+  segSet('f-cycle', sub ? sub.cycle : 'monthly');
+  document.getElementById('f-name').value = sub ? sub.name : '';
+  document.getElementById('f-price').value = sub ? sub.price : '';
+  document.getElementById('f-renewal').value = sub ? sub.renewal : new Date(Date.now() + 30 * 86400000).toISOString().split('T')[0];
+  document.getElementById('modal').classList.add('open');
+  setTimeout(() => document.getElementById('f-name').focus(), 50);
+}
+function closeModal() { document.getElementById('modal').classList.remove('open'); }
+
+document.querySelectorAll('.seg').forEach(seg => {
+  seg.addEventListener('click', e => {
+    const btn = e.target.closest('.seg-btn');
+    if (!btn) return;
+    seg.querySelectorAll('.seg-btn').forEach(b => b.classList.remove('on'));
+    btn.classList.add('on');
+  });
+});
+
+document.getElementById('add-form').addEventListener('submit', e => {
+  e.preventDefault();
+  const name = document.getElementById('f-name').value.trim();
+  const price = parseFloat(document.getElementById('f-price').value);
+  const renewal = document.getElementById('f-renewal').value;
+  if (!name || isNaN(price) || !renewal) return;
+  if (editingId !== null) {
+    const sub = subs.find(s => s.id === editingId);
+    if (sub) Object.assign(sub, { name, price, renewal, cycle: segVal('f-cycle'), cat: segVal('f-cat') });
+  } else {
+    const bg = TILE_COLORS[name.length % TILE_COLORS.length];
+    subs.push({ id: nextId++, name, price, cycle: segVal('f-cycle'), renewal, active: true, cat: segVal('f-cat'), logo: { bg, txt: name[0].toUpperCase() } });
+  }
+  editingId = null;
+  closeModal();
+  renderAll();
+});
+
+document.getElementById('modal-close').addEventListener('click', closeModal);
+document.getElementById('modal-cancel').addEventListener('click', closeModal);
+document.getElementById('modal').addEventListener('click', e => { if (e.target === e.currentTarget) closeModal(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+function renderAll() { renderCats(); recalc(); save(); }
+
+/* ---------- init ---------- */
+document.getElementById('tab-active').addEventListener('click', () => setView('active'));
+document.getElementById('tab-all').addEventListener('click', () => setView('all'));
+document.getElementById('view-all-link').addEventListener('click', () => setView('all'));
+document.getElementById('btn-inactive').addEventListener('click', () => setView('all'));
+document.getElementById('btn-add').addEventListener('click', openModal);
+renderAll();
+
+</script>
+</body>
+</html>
